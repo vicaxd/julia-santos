@@ -71,7 +71,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .btn.insta{background:var(--teal)}
 
 /* botão flutuante do Instagram */
-.float{position:fixed;right:max(.85rem,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);z-index:15;display:flex;flex-direction:column;gap:.75rem}
+.float{position:fixed;right:max(.85rem,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);z-index:15;display:flex;flex-direction:column;gap:.75rem;opacity:0;visibility:hidden;pointer-events:none;transform:translate(60px,-50%) scale(.5);transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.56,.64,1),visibility 0s linear .7s}
+.float.show{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%) scale(1);transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.56,.64,1),visibility 0s}
 .float a{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--pink);color:var(--btn-ink);box-shadow:0 6px 18px rgba(64,36,26,.25);transition:transform .15s}
 .float a:hover{transform:scale(1.08)}
 .float a:active{transform:scale(.95)}
@@ -182,7 +183,7 @@ footer .btns{margin-top:1.5rem}
 .dot{position:absolute;z-index:1;bottom:-30px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:var(--c);opacity:0;pointer-events:none}
 .ribbon-wrap{position:relative;overflow:hidden;padding:1.6rem 0 .4rem}
 .ribbon-wrap::before{content:"";position:absolute;left:-3%;right:-3%;top:calc(1.6rem - 6px);bottom:calc(.4rem - 6px);background:var(--b-pink);transform:rotate(-1.2deg)}
-.ribbon{position:relative;padding:.8rem 0;overflow:hidden;overscroll-behavior:none}
+.ribbon{position:relative;padding:.8rem 0;overflow:hidden;overscroll-behavior:none;pointer-events:none;user-select:none;-webkit-user-select:none}
 .track{position:relative}
 .track{display:flex;width:max-content}
 .chip{font-family:var(--display);font-weight:700;font-size:2rem;line-height:1;padding:.4rem 1.2rem;border-radius:999px;color:var(--btn-ink);margin-right:.8rem;white-space:nowrap}
@@ -450,6 +451,7 @@ footer .btns{margin-top:1.5rem}
   function onScroll(){
     var y=window.scrollY||0;
     if(nav)nav.classList.toggle('scrolled',y>40);
+    var fl=document.querySelector('.float');if(fl)fl.classList.toggle('show',y>80);
     if(img&&!reduce){img.style.transform='translateY('+(Math.min(y,520)*.1)+'px) scale(1.15)'}
     if(!reduce){cols.forEach(function(c){var r=c.getBoundingClientRect();var q=((r.top+r.height/2)-window.innerHeight/2)/window.innerHeight;c.style.setProperty('--p',Math.max(-1,Math.min(1,q)).toFixed(3))})}
     tick=false;
@@ -463,8 +465,6 @@ footer .btns{margin-top:1.5rem}
   var rb=document.querySelector('.ribbon'),tr=document.querySelector('.track');
   if(!rb||!tr||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   var last=0,pos=0,paused=false;
-  rb.addEventListener('mouseenter',function(){paused=true});
-  rb.addEventListener('mouseleave',function(){paused=false});
   function step(t){
     if(!last)last=t;
     var dt=Math.min(t-last,100);last=t;
